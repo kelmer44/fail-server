@@ -201,6 +201,9 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/health":
                 self.send(self.json_response({"ok": True, "runs": len(self.server.runs)}), head)
                 return
+            if path == '/api/default':
+                self.send(self.json_response(self.server.default_run().summary(self.base(), current=True)), head)
+                return
             if path == "/api/scenarios":
                 self.send(self.json_response(SCENARIOS), head)
                 return
@@ -243,7 +246,8 @@ class Handler(BaseHTTPRequestHandler):
                 return
             response = self.resource(run, resource, head, current=current)
             run.record(resource, response.status if not response.disconnect else 0,
-                       "disconnect" if response.disconnect else "response")
+                       'injected-' + response.headers['X-Replay-Fault'] if 'X-Replay-Fault' in response.headers
+                       else "disconnect" if response.disconnect else "response")
             self.send(response, head)
         except (ValueError, IndexError, FileNotFoundError):
             self.send(self.json_response({"error": "Replay resource not found"}, 404), head)

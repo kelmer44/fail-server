@@ -104,7 +104,7 @@ Configuration fields accepted when creating a run:
 | `scenario` | `healthy` | One of the scenarios above. |
 | `mode` | `sxm` | `sxm` or `standard`. |
 | `ad_count` | `2` | First N captured ads, up to nine. |
-| `pre_roll_segments` | `1` | Primary segments before the break. |
+| `pre_roll_segments` | `3` | Primary segments before the break (roughly 20 seconds with this capture). |
 | `window_segments` | `0` | Growing EVENT playlist; positive values enable a sliding live window. |
 | `fault_ad_index` | `0` | Zero-based ad targeted by segment failure. |
 | `fault_segment_index` | `3` | Zero-based first failing segment; must exist and be later than segment zero. |
@@ -149,3 +149,9 @@ The recording contains 32 LiveUpdate responses spanning roughly four minutes. Th
 The captured AdsWizz endpoint is `/vast/4.1/request` (including the initial `/vast`). Map that request to `http://127.0.0.1:8765/vast.xml`, allowing any query string. The server accepts `/vast.xml`, `/vast`, `/request`, `/vast/request`, `/4.1/request`, and `/vast/4.1/request`, including trailing slashes and GET or POST requests. The aliases all use the current run and its selected error scenario. Existing imported fixtures are upgraded automatically on startup; no media reimport or deletion is necessary.
 
 For Charles **Map To**, enter Protocol `http`, Host `127.0.0.1`, Port `8765`, and Path `/vast.xml` (with the leading slash). The complete destination must be `http://127.0.0.1:8765/vast.xml`; `http://127.0.0.1:8765vast.xml` is malformed. Allow the incoming query parameters to pass through.
+
+### Confirm the selected failure is active
+
+The dropdown is a pending selection. Click **Start new run with selected scenario** to apply it, then stop and retune the player. The **Active scenario** label and `GET /api/default` report what the server is actually serving. Refreshing the dashboard loads the active run instead of defaulting the dropdown to healthy.
+
+A deliberately malformed ad playlist returns HTTP 200 because this scenario tests parser/prepare recovery, not HTTP retry exhaustion. Those responses carry `X-Replay-Fault: ad-prepare`, and the run observations label them `injected-ad-prepare`. These labels prove an injected response was served; they do not by themselves prove that the player consumed it or recovered.

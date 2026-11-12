@@ -245,6 +245,24 @@ class ReplayTests(unittest.TestCase):
         for path in paths:
             self.assertEqual(self.request(path)[0], 503)
 
+    def test_current_scenario_and_injected_prepare_response_are_observable(self):
+        initial = json.loads(self.request('/api/default')[2])
+        self.assertEqual(initial['config']['scenario'], 'healthy')
+        selected = json.loads(self.request('/api/default', 'POST', {'scenario': 'first_prepare_error'})[2])
+        active = json.loads(self.request('/api/default')[2])
+        self.assertEqual(active['id'], selected['id'])
+        self.assertEqual(active['config']['scenario'], 'first_prepare_error')
+        status, headers, body = self.request('/current/ads/0/master.m3u8')
+        self.assertEqual(status, 200)
+        self.assertEqual(headers['X-Replay-Fault'], 'ad-prepare')
+        self.assertEqual(body, b'injected invalid HLS playlist\n')
+        active = json.loads(self.request('/api/default')[2])
+        self.assertEqual(active['requests'][-1]['event'], 'injected-ad-prepare')
+        self.assertNotIn('X-Replay-Fault', self.request('/current/ads/1/master.m3u8')[1])
+        self.request('/api/default', 'POST', {'scenario': 'healthy'})
+        self.assertNotIn('X-Replay-Fault', self.request('/current/ads/0/master.m3u8')[1])
+        self.assertEqual(json.loads(self.request('/api/default')[2])['config']['scenario'], 'healthy')
+
     def test_startup_defaults_detect_origin_print_mappings_and_use_bound_port(self):
         (self.root / 'catalog.json').write_text(json.dumps(self.catalog))
         output = io.StringIO()

@@ -26,7 +26,7 @@ class Config:
     scenario: str = "healthy"
     mode: str = "sxm"
     ad_count: int = 2
-    pre_roll_segments: int = 1
+    pre_roll_segments: int = 3
     window_segments: int = 0
     fault_ad_index: int = 0
     fault_segment_index: int = 3
@@ -230,7 +230,9 @@ class Run:
     def ad_playlist(self, base: str, index: int, master: bool, current: bool = False) -> Response:
         url = self.current_url if current else self.url
         if self.prepare_fails(index):
-            return text_response("injected invalid HLS playlist\n")
+            response = text_response("injected invalid HLS playlist\n")
+            response.headers['X-Replay-Fault'] = 'ad-prepare'
+            return response
         if master:
             return text_response('#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=256000,CODECS="mp4a.40.2"\n'
                                  + url(base, f"ads/{index}/media.m3u8") + "\n")
