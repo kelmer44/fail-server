@@ -1,0 +1,8 @@
+captures/
+data/
+logs/
+__pycache__/
+*.py[cod]
+*.chlz
+.venv/
+.DS_Store
