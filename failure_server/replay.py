@@ -26,7 +26,7 @@ class Config:
     scenario: str = "healthy"
     mode: str = "sxm"
     ad_count: int = 2
-    pre_roll_segments: int = 3
+    pre_roll_segments: int = 1
     window_segments: int = 0
     fault_ad_index: int = 0
     fault_segment_index: int = 3

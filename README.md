@@ -104,7 +104,7 @@ Configuration fields accepted when creating a run:
 | `scenario` | `healthy` | One of the scenarios above. |
 | `mode` | `sxm` | `sxm` or `standard`. |
 | `ad_count` | `2` | First N captured ads, up to nine. |
-| `pre_roll_segments` | `3` | Primary segments before the break (roughly 20 seconds with this capture). |
+| `pre_roll_segments` | `1` | Primary segments before the break (the original position, after one captured segment). |
 | `window_segments` | `0` | Growing EVENT playlist; positive values enable a sliding live window. |
 | `fault_ad_index` | `0` | Zero-based ad targeted by segment failure. |
 | `fault_segment_index` | `3` | Zero-based first failing segment; must exist and be later than segment zero. |
